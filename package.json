@@ -21,6 +21,7 @@
     "@mui/material": "^6.4.0",
     "@mui/styles": "^6.4.0",
     "@prisma/client": "^6.2.1",
+    "antd": "^5.26.2",
     "axios": "^1.7.9",
     "celebrate": "^15.0.3",
     "concurrently": "^9.1.2",

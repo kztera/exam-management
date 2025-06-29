@@ -44,7 +44,7 @@ router.get("/:id", async (req, res) => {
  * POST /create
  * Create a new contact.
  */
-router.post("/", contactValidation.create, async (req, res) => {
+router.post("/create", contactValidation.create, async (req, res) => {
   const { firstName, lastName, email } = req.body;
 
   try {

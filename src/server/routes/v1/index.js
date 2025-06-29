@@ -4,7 +4,7 @@ import contactRoutes from "./contact.route.js";
 
 const router = Router();
 
-router.use("/contact", contactRoutes);
+// router.use("/contact", contactRoutes);
 
 /**
  * GET /health

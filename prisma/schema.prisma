@@ -8,9 +8,181 @@ generator client {
   previewFeatures = ["postgresqlExtensions"]
 }
 
-model Contact {
-  id        Int           @id @default(autoincrement())
-  firstName String
-  lastName  String
-  email     String
+// Quản lý kỳ thi
+model Exam {
+  id          Int           @id @default(autoincrement())
+  name        String
+  description String?
+  startTime   DateTime
+  endTime     DateTime
+  location    String?
+  status      ExamStatus    @default(PENDING)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  // Relations
+  examGroups  ExamGroup[]
+  monitorings ExamMonitoring[]
+  violations  Violation[]
+}
+
+enum ExamStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+// Quản lý nhóm sinh viên thi
+model StudentGroup {
+  id          Int           @id @default(autoincrement())
+  name        String
+  description String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  // Relations
+  students    StudentInGroup[]
+  examGroups  ExamGroup[]
+}
+
+// Bảng liên kết giữa kỳ thi và nhóm sinh viên
+model ExamGroup {
+  id           Int          @id @default(autoincrement())
+  examId       Int
+  studentGroupId Int
+  
+  // Relations
+  exam         Exam         @relation(fields: [examId], references: [id], onDelete: Cascade)
+  studentGroup StudentGroup @relation(fields: [studentGroupId], references: [id], onDelete: Cascade)
+  
+  @@unique([examId, studentGroupId])
+}
+
+// Quản lý sinh viên
+model Student {
+  id          Int           @id @default(autoincrement())
+  studentCode String        @unique
+  firstName   String
+  lastName    String
+  email       String        @unique
+  phone       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  // Relations
+  faceData    FaceData[]
+  groups      StudentInGroup[]
+  attendances Attendance[]
+  violations  Violation[]
+}
+
+// Bảng liên kết giữa sinh viên và nhóm
+model StudentInGroup {
+  id            Int         @id @default(autoincrement())
+  studentId     Int
+  studentGroupId Int
+  joinedAt      DateTime    @default(now())
+  
+  // Relations
+  student       Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentGroup  StudentGroup @relation(fields: [studentGroupId], references: [id], onDelete: Cascade)
+  
+  @@unique([studentId, studentGroupId])
+}
+
+// Dữ liệu khuôn mặt của sinh viên để nhận diện
+model FaceData {
+  id          Int           @id @default(autoincrement())
+  studentId   Int
+  imageUrl    String
+  encodingData Json?        // Lưu trữ vector đặc trưng khuôn mặt hoặc các điểm mốc khuôn mặt từ AI
+  createdAt   DateTime      @default(now())
+  
+  // Relations
+  student     Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+// Giám sát kỳ thi - Quản lý phiên giám sát
+model ExamMonitoring {
+  id          Int           @id @default(autoincrement())
+  examId      Int
+  startTime   DateTime      @default(now())
+  endTime     DateTime?
+  status      MonitoringStatus @default(ACTIVE)
+  notes       String?
+  
+  // Relations
+  exam        Exam          @relation(fields: [examId], references: [id], onDelete: Cascade)
+  attendances Attendance[]
+}
+
+enum MonitoringStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+// Điểm danh trước khi thi
+model Attendance {
+  id              Int           @id @default(autoincrement())
+  monitoringId    Int
+  studentId       Int
+  status          AttendanceStatus @default(ABSENT)
+  verifiedAt      DateTime?
+  faceMatchScore  Float?        // Điểm số nhận diện khuôn mặt (0-1)
+  
+  // Relations
+  monitoring      ExamMonitoring @relation(fields: [monitoringId], references: [id], onDelete: Cascade)
+  student         Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  
+  @@unique([monitoringId, studentId])
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+}
+
+// Quản lý vi phạm/gian lận
+model Violation {
+  id              Int           @id @default(autoincrement())
+  examId          Int
+  studentId       Int
+  violationType   ViolationType
+  description     String?
+  evidenceUrl     String?       // URL hình ảnh hoặc video bằng chứng
+  detectedAt      DateTime      @default(now())
+  severity        ViolationSeverity @default(WARNING)
+  status          ViolationStatus @default(PENDING)
+  
+  // Relations
+  exam            Exam          @relation(fields: [examId], references: [id])
+  student         Student       @relation(fields: [studentId], references: [id])
+}
+
+enum ViolationType {
+  UNAUTHORIZED_MATERIALS
+  PHONE_USAGE
+  LOOKING_ELSEWHERE
+  TALKING
+  IDENTITY_MISMATCH
+  ABSENCE
+  MULTIPLE_PERSONS
+  OTHER
+}
+
+enum ViolationSeverity {
+  WARNING
+  MINOR
+  MAJOR
+  SEVERE
+}
+
+enum ViolationStatus {
+  PENDING
+  REVIEWED
+  CONFIRMED
+  DISMISSED
 }
