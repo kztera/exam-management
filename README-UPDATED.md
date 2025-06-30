@@ -1,6 +1,6 @@
 # Exam Management System
 
-A modern exam management system built with **TypeScript**, **Mantine UI**, and **ky HTTP client**.
+A modern exam management system built with **TypeScript**, **Mantine UI**, and **await-to-js** for error handling.
 
 ## 🚀 Tech Stack
 
@@ -8,7 +8,7 @@ A modern exam management system built with **TypeScript**, **Mantine UI**, and *
 - ⚡️ **Vite** - Fast development build tool
 - ⚛️ **React 19** - UI framework
 - 🎨 **Mantine** - Modern React components library
-- 🔗 **ky** - HTTP client for API requests
+- 🔗 **await-to-js** - Error handling for async/await
 - 🛣️ **React Router** - Client-side routing
 - 📝 **TypeScript** - Type safety
 
@@ -27,7 +27,7 @@ src/
 ├── client/                 # Frontend React application
 │   ├── components/         # Reusable React components
 │   ├── pages/             # Page components
-│   ├── services/          # API services using ky
+│   ├── services/          # API services using await-to-js
 │   └── index.tsx          # App entry point
 ├── server/                # Backend Express application
 │   ├── routes/            # API routes (TypeScript)
@@ -89,7 +89,7 @@ src/
 ### Implemented
 - ✅ **Modern TypeScript** setup for both frontend and backend
 - ✅ **Mantine UI** components with beautiful design
-- ✅ **ky HTTP client** for API requests
+- ✅ **await-to-js** for clean error handling
 - ✅ **Student Management** - CRUD operations
 - ✅ **Responsive Layout** with navigation
 - ✅ **Form validation** and error handling
@@ -136,14 +136,14 @@ Built with Mantine for:
 - **Navigation** - Responsive sidebar
 - **Buttons & Actions** - Consistent styling
 
-## 🔄 HTTP Client
+## 🔄 Error Handling
 
-Using **ky** instead of axios for:
-- **Modern** - Built on fetch API
-- **Lightweight** - Smaller bundle size
-- **Type-safe** - Better TypeScript support
-- **Retry logic** - Built-in retry mechanisms
-- **Hooks** - Request/response interceptors
+Using **await-to-js** for:
+- **Clean syntax** - No try/catch blocks needed
+- **Better error handling** - Explicit error checking
+- **Type-safe** - Full TypeScript support
+- **Lightweight** - Minimal overhead
+- **Async-friendly** - Works perfectly with async/await
 
 ## 🏗️ Development Guidelines
 
