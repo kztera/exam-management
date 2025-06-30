@@ -1,9 +1,8 @@
-// vite.config.js
+// vite.config.ts
 import { defineConfig } from "vite";
-import reactRefresh from "@vitejs/plugin-react-refresh";
+import react from "@vitejs/plugin-react";
 import path from "path";
 import { fileURLToPath } from "url";
-import { minify } from "terser";
 import { config } from "dotenv";
 
 config();
@@ -12,26 +11,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default defineConfig({
-  plugins: [reactRefresh()],
+  plugins: [react()],
   build: {
     outDir: path.resolve(__dirname, "dist"),
     assetsDir: "",
-    rollupOptions: {
-      plugins: [
-        {
-          name: "minify",
-          renderChunk: async (code) => {
-            const result = await minify(code);
-            return { code: result.code, map: null };
-          },
-        },
-      ],
-    },
     emptyOutDir: true,
     sourcemap: true,
-    optimizeDeps: {
-      include: ["react", "react-dom"],
-    },
   },
   server: {
     port: 3000,
@@ -44,17 +29,14 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@": "/src",
+      "@": path.resolve(__dirname, "./src"),
+      "@/client": path.resolve(__dirname, "./src/client"),
+      "@/server": path.resolve(__dirname, "./src/server"),
     },
   },
   css: {
     modules: {
       localsConvention: "camelCaseOnly",
-    },
-    preprocessorOptions: {
-      scss: {
-        additionalData: `@import "src/styles/variables.scss";`,
-      },
     },
   },
 });

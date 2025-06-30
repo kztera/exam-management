@@ -1,9 +1,9 @@
-// AppHeroIcon.jsx
 import React from "react";
+import { Image } from "@mantine/core";
 
-const AppHeroIcon = () => (
+const AppHeroIcon: React.FC = () => (
   <div>
-    <img
+    <Image
       src="/template-logo.png"
       height={150}
       alt="Template logo"

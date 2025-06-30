@@ -1,16 +1,16 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import errorHandler from "strong-error-handler";
-import contactRoutes from "./contact.route.js";
+import studentRoutes from "./student.route.js";
 
 const router = Router();
 
-// router.use("/contact", contactRoutes);
+router.use("/student", studentRoutes);
 
 /**
  * GET /health
  * Health check endpoint.
  */
-router.get("/health", (req, res) => {
+router.get("/health", (_req: Request, res: Response) => {
   res.send("Ok");
 });
 

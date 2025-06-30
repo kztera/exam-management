@@ -1,5 +1,6 @@
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import { Request, Response, NextFunction } from "express";
 
 /**
  * Array of security middleware functions
@@ -21,11 +22,11 @@ export const securityMiddleware = [
 /**
  * Middleware for logging incoming requests
  * Logs timestamp, HTTP method, and URL path
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- * @param {Function} next - Express next middleware function
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ * @param {NextFunction} next - Express next middleware function
  */
-export const requestLogger = (req, res, next) => {
+export const requestLogger = (req: Request, _res: Response, next: NextFunction): void => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
   next();
 };

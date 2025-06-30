@@ -1,6 +1,7 @@
 import * as dotenv from "dotenv";
 import path from "path";
-import { default as cors, default as express } from "express";
+import express, { Request, Response, NextFunction } from "express";
+import cors from "cors";
 import { errors } from "celebrate";
 import http from "http";
 import routes from "./routes/v1/index.js";
@@ -26,7 +27,7 @@ app.use("/api/v1/", routes);
 /**
  * Redirect root URL to the frontend application.
  */
-app.get("/", (req, res) => {
+app.get("/", (req: Request, res: Response) => {
   res.redirect("http://localhost:3000");
 });
 
@@ -34,10 +35,10 @@ app.get("/", (req, res) => {
  * Serve the frontend application for any other route.
  * This is necessary for React Router to work.
  */
-app.get("*", (req, res) => res.sendFile(path.resolve("dist", "index.html")));
+app.get("*", (req: Request, res: Response) => res.sendFile(path.resolve("dist", "index.html")));
 
 // Improved error handling
-app.use((err, req, res, next) => {
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error("Unhandled error:", err);
   res.status(500).json({
     success: false,
@@ -46,6 +47,8 @@ app.use((err, req, res, next) => {
   });
 });
 
-httpServer.listen(process.env.PORT || 3000, () => {
-  console.log(`Listening on port ${process.env.PORT}`);
+const PORT = process.env.PORT || 3000;
+
+httpServer.listen(PORT, () => {
+  console.log(`Listening on port ${PORT}`);
 });
