@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
-import { celebrate, Joi } from "celebrate";
+import { body, param } from "express-validator";
+import { handleValidationErrors } from "../../middleware/validationHandler.js";
 import { successResponse, errorResponse } from "../../utils/response.js";
 import studentService from "../../services/student.service.js";
 
@@ -7,28 +8,60 @@ const router = Router();
 
 // Validation schemas
 const studentValidation = {
-  create: celebrate({
-    body: Joi.object({
-      studentCode: Joi.string().required().description("Student's code"),
-      firstName: Joi.string().required().description("Student's first name"),
-      lastName: Joi.string().required().description("Student's last name"),
-      email: Joi.string().email().required().description("Student's email address"),
-      phone: Joi.string().optional().description("Student's phone number"),
-    }),
-  }),
+  create: [
+    body("studentCode")
+      .notEmpty()
+      .withMessage("Student's code is required")
+      .isString()
+      .withMessage("Student code must be a string"),
+    body("firstName")
+      .notEmpty()
+      .withMessage("Student's first name is required")
+      .isString()
+      .withMessage("First name must be a string"),
+    body("lastName")
+      .notEmpty()
+      .withMessage("Student's last name is required")
+      .isString()
+      .withMessage("Last name must be a string"),
+    body("email")
+      .notEmpty()
+      .withMessage("Student's email address is required")
+      .isEmail()
+      .withMessage("Must be a valid email address"),
+    body("phone")
+      .optional()
+      .isString()
+      .withMessage("Phone number must be a string"),
+  ],
 
-  update: celebrate({
-    params: Joi.object({
-      id: Joi.number().required().description("Student ID"),
-    }),
-    body: Joi.object({
-      studentCode: Joi.string().description("Updated student code"),
-      firstName: Joi.string().description("Updated first name"),
-      lastName: Joi.string().description("Updated last name"),
-      email: Joi.string().email().description("Updated email address"),
-      phone: Joi.string().description("Updated phone number"),
-    }),
-  }),
+  update: [
+    param("id")
+      .notEmpty()
+      .withMessage("Student ID is required")
+      .isNumeric()
+      .withMessage("Student ID must be a number"),
+    body("studentCode")
+      .optional()
+      .isString()
+      .withMessage("Student code must be a string"),
+    body("firstName")
+      .optional()
+      .isString()
+      .withMessage("First name must be a string"),
+    body("lastName")
+      .optional()
+      .isString()
+      .withMessage("Last name must be a string"),
+    body("email")
+      .optional()
+      .isEmail()
+      .withMessage("Must be a valid email address"),
+    body("phone")
+      .optional()
+      .isString()
+      .withMessage("Phone number must be a string"),
+  ],
 };
 
 /**
@@ -93,7 +126,7 @@ router.get("/code/:studentCode", async (req: Request, res: Response): Promise<vo
  * POST /create
  * Create a new student.
  */
-router.post("/create", studentValidation.create, async (req: Request, res: Response): Promise<void> => {
+router.post("/create", studentValidation.create, handleValidationErrors, async (req: Request, res: Response): Promise<void> => {
   const { studentCode, firstName, lastName, email, phone } = req.body;
 
   try {
@@ -116,7 +149,7 @@ router.post("/create", studentValidation.create, async (req: Request, res: Respo
  * PUT /:id
  * Update an existing student by ID.
  */
-router.put("/:id", studentValidation.update, async (req: Request, res: Response): Promise<void> => {
+router.put("/:id", studentValidation.update, handleValidationErrors, async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
   const { studentCode, firstName, lastName, email, phone } = req.body;
 

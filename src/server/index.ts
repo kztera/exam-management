@@ -2,7 +2,6 @@ import * as dotenv from "dotenv";
 import path from "path";
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
-import { errors } from "celebrate";
 import http from "http";
 import routes from "./routes/v1/index.js";
 import { securityMiddleware, requestLogger } from "./middleware/security.js";
@@ -18,7 +17,6 @@ app.use(express.json());
 
 app.use(cors());
 app.use(express.static("dist"));
-app.use(errors());
 const httpServer = http.createServer(app);
 
 // setup routes
