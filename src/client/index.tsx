@@ -9,7 +9,6 @@ import "@mantine/notifications/styles.css";
 import "./app.css";
 import NotFound from "@/pages/NotFound";
 import Home from "@/pages/Home";
-import Dashboard from "@/pages/Dashboard";
 import StudentsPage from "@/pages/Students";
 import LayoutComponent from "@/components/Layout";
 
@@ -24,7 +23,6 @@ if (root !== null) {
             <LayoutComponent>
               <Routes>
                 <Route path="/" element={<Home key="home" />} />
-                <Route path="/dashboard" element={<Dashboard key="dashboard" />} />
                 <Route path="/students" element={<StudentsPage key="students" />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

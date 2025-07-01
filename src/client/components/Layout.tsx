@@ -1,75 +1,97 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState } from 'react';
 import {
   AppShell,
-  Text,
-  Burger,
-  NavLink,
+  Center,
+  Stack,
+  Tooltip,
+  UnstyledButton,
   Image,
-  Group,
 } from '@mantine/core';
-import { IconHome, IconDashboard, IconUsers } from '@tabler/icons-react';
+import { 
+  IconHome2, 
+  IconDashboard, 
+  IconUsers,
+  IconSettings,
+  IconLogout 
+} from '@tabler/icons-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useDisclosure } from '@mantine/hooks';
+import classes from './NavbarMinimal.module.css';
 
 interface LayoutProps {
   children: ReactNode;
 }
 
+interface NavbarLinkProps {
+  icon: typeof IconHome2;
+  label: string;
+  active?: boolean;
+  onClick?: () => void;
+}
+
+function NavbarLink({ icon: Icon, label, active, onClick }: NavbarLinkProps) {
+  return (
+    <Tooltip label={label} position="right" transitionProps={{ duration: 0 }}>
+      <UnstyledButton onClick={onClick} className={classes.link} data-active={active || undefined}>
+        <Icon size={20} stroke={1.5} />
+      </UnstyledButton>
+    </Tooltip>
+  );
+}
+
 const LayoutComponent: React.FC<LayoutProps> = ({ children }) => {
-  const [opened, { toggle }] = useDisclosure(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const [active, setActive] = useState(() => {
+    if (location.pathname === '/') return 0;
+    if (location.pathname === '/students') return 2;
+    return 0;
+  });
 
   const navItems = [
-    { label: 'Home', icon: IconHome, path: '/' },
-    { label: 'Dashboard', icon: IconDashboard, path: '/dashboard' },
-    { label: 'Students', icon: IconUsers, path: '/students' },
+    { icon: IconHome2, label: 'Home', path: '/' },
+    { icon: IconUsers, label: 'Students', path: '/students' },
   ];
+
+  const handleNavClick = (index: number, path: string) => {
+    setActive(index);
+    navigate(path);
+  };
+
+  const mainLinks = navItems.map((link, index) => (
+    <NavbarLink
+      {...link}
+      key={link.label}
+      active={index === active}
+      onClick={() => handleNavClick(index, link.path)}
+    />
+  ));
 
   return (
     <AppShell
-      header={{ height: 60 }}
       navbar={{
-        width: 300,
+        width: 80,
         breakpoint: 'sm',
-        collapsed: { mobile: !opened },
       }}
-      padding="md"
+      padding={0}
     >
-      <AppShell.Header>
-        <Group h="100%" px="md">
-          <Burger
-            opened={opened}
-            onClick={toggle}
-            hiddenFrom="sm"
-            size="sm"
-          />
-          <Group>
-            <Image src="/template-logo.png" alt="Logo" w={40} h={40} />
-            <Text size="lg" fw={500}>
-              Exam Management System
-            </Text>
-          </Group>
-        </Group>
-      </AppShell.Header>
+      <AppShell.Navbar className={classes.navbar}>
+        <Center>
+          <Image src="/template-logo.png" alt="Logo" w={48} h={48} />
+        </Center>
 
-      <AppShell.Navbar p="md">
-        {navItems.map((item) => (
-          <NavLink
-            key={item.path}
-            label={item.label}
-            leftSection={<item.icon size="1rem" />}
-            active={location.pathname === item.path}
-            onClick={() => {
-              navigate(item.path);
-              if (opened) toggle();
-            }}
-            style={{ marginBottom: 8 }}
-          />
-        ))}
+        <div className={classes.navbarMain}>
+          <Stack justify="center" gap={0}>
+            {mainLinks}
+          </Stack>
+        </div>
+
+        <Stack justify="center" gap={0}>
+          <NavbarLink icon={IconSettings} label="Settings" />
+          <NavbarLink icon={IconLogout} label="Logout" />
+        </Stack>
       </AppShell.Navbar>
 
-      <AppShell.Main>
+      <AppShell.Main style={{ padding: 'var(--mantine-spacing-md)' }}>
         {children}
       </AppShell.Main>
     </AppShell>
