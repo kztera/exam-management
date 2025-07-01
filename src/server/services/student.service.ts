@@ -1,4 +1,4 @@
-import db from "./database.js";
+import { BaseService } from "./base.service.js";
 
 interface StudentData {
   studentCode: string;
@@ -10,26 +10,11 @@ interface StudentData {
 
 /**
  * Service class for handling student-related business logic
- * Provides an abstraction layer between the database and route handlers
+ * Extends BaseService to inherit common database operations
  */
-class StudentService {
-  /**
-   * Retrieves all students from the database
-   * @returns {Promise<Array>} List of students
-   */
-  async findAll() {
-    return db.prisma.student.findMany();
-  }
-
-  /**
-   * Finds a student by their ID
-   * @param {number|string} id - The student's ID
-   * @returns {Promise<Object|null>} Student object or null if not found
-   */
-  async findById(id: number | string) {
-    return db.prisma.student.findUnique({
-      where: { id: Number(id) },
-    });
+class StudentService extends BaseService<StudentData> {
+  constructor() {
+    super("student"); // Pass the table name to base service
   }
 
   /**
@@ -38,44 +23,114 @@ class StudentService {
    * @returns {Promise<Object|null>} Student object or null if not found
    */
   async findByStudentCode(studentCode: string) {
-    return db.prisma.student.findUnique({
+    return this.model.findUnique({
       where: { studentCode },
     });
   }
 
   /**
-   * Creates a new student
-   * @param {StudentData} data - Student data
-   * @returns {Promise<Object>} Created student
+   * Check if student code already exists
+   * @param {string} studentCode - The student code to check
+   * @param {number} excludeId - ID to exclude from check (for updates)
+   * @returns {Promise<boolean>} True if student code exists
    */
-  async create(data: StudentData) {
-    return db.prisma.student.create({
-      data,
+  async isStudentCodeExists(studentCode: string, excludeId?: number): Promise<boolean> {
+    const where: any = { studentCode };
+    if (excludeId) {
+      where.id = { not: excludeId };
+    }
+    return this.exists(where);
+  }
+
+  /**
+   * Check if email already exists
+   * @param {string} email - The email to check
+   * @param {number} excludeId - ID to exclude from check (for updates)
+   * @returns {Promise<boolean>} True if email exists
+   */
+  async isEmailExists(email: string, excludeId?: number): Promise<boolean> {
+    const where: any = { email };
+    if (excludeId) {
+      where.id = { not: excludeId };
+    }
+    return this.exists(where);
+  }
+
+  /**
+   * Search students by name or student code
+   * @param {string} searchTerm - Search term
+   * @returns {Promise<Array>} Matching students
+   */
+  async search(searchTerm: string) {
+    return this.model.findMany({
+      where: {
+        OR: [
+          { firstName: { contains: searchTerm, mode: 'insensitive' } },
+          { lastName: { contains: searchTerm, mode: 'insensitive' } },
+          { studentCode: { contains: searchTerm, mode: 'insensitive' } },
+          { email: { contains: searchTerm, mode: 'insensitive' } },
+        ],
+      },
+      orderBy: [
+        { firstName: 'asc' },
+        { lastName: 'asc' },
+      ],
     });
   }
 
   /**
-   * Updates an existing student
-   * @param {number|string} id - Student ID to update
-   * @param {Partial<StudentData>} data - Updated student data
-   * @returns {Promise<Object>} Updated student
+   * Get students with pagination and filtering
+   * @param {object} options - Query options
+   * @returns {Promise<Object>} Paginated results
    */
-  async update(id: number | string, data: Partial<StudentData>) {
-    return db.prisma.student.update({
-      where: { id: Number(id) },
-      data,
-    });
-  }
+  async getPaginated(options: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+  }) {
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      sortBy = 'firstName',
+      sortOrder = 'asc',
+    } = options;
 
-  /**
-   * Deletes a student
-   * @param {number|string} id - Student ID to delete
-   * @returns {Promise<Object>} Deleted student
-   */
-  async delete(id: number | string) {
-    return db.prisma.student.delete({
-      where: { id: Number(id) },
-    });
+    const where: any = {};
+    
+    if (search) {
+      where.OR = [
+        { firstName: { contains: search, mode: 'insensitive' } },
+        { lastName: { contains: search, mode: 'insensitive' } },
+        { studentCode: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    const queryOptions = {
+      skip: (page - 1) * limit,
+      take: limit,
+      orderBy: { [sortBy]: sortOrder },
+    };
+
+    const [students, total] = await Promise.all([
+      this.findMany(where, queryOptions),
+      this.count(where),
+    ]);
+
+    return {
+      data: students,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+        hasNext: page * limit < total,
+        hasPrev: page > 1,
+      },
+    };
   }
 }
 

@@ -1,8 +1,7 @@
-import { Router, Request, Response } from "express";
+import { Router } from "express";
 import { body, param } from "express-validator";
-import { handleValidationErrors } from "../../middleware/validationHandler.js";
-import { successResponse, errorResponse } from "../../utils/response.js";
-import studentService from "../../services/student.service.js";
+import { handleValidationErrors } from "@/middleware/validationHandler.js";
+import studentController from "@/controllers/student.controller.js";
 
 const router = Router();
 
@@ -62,128 +61,74 @@ const studentValidation = {
       .isString()
       .withMessage("Phone number must be a string"),
   ],
+
+  id: [
+    param("id")
+      .notEmpty()
+      .withMessage("Student ID is required")
+      .isNumeric()
+      .withMessage("Student ID must be a number"),
+  ],
 };
 
 /**
  * GET /list
  * Retrieve a list of students.
  */
-router.get("/list", async (_req: Request, res: Response): Promise<void> => {
-  try {
-    const students = await studentService.findAll();
-    res.status(200).json(successResponse(students));
-  } catch (err) {
-    console.error(err);
-    res.status(500).json(errorResponse("Failed to retrieve students"));
-  }
-});
+router.get("/list", studentController.getAll);
+
+/**
+ * GET /paginated
+ * Retrieve paginated list of students with search and sorting.
+ */
+router.get("/paginated", studentController.getPaginated);
+
+/**
+ * GET /search
+ * Search students by name, code, or email.
+ */
+router.get("/search", studentController.search);
+
+/**
+ * GET /count
+ * Get total count of students.
+ */
+router.get("/count", studentController.count);
 
 /**
  * GET /:id
  * Retrieve a student by ID.
  */
-router.get("/:id", async (req: Request, res: Response): Promise<void> => {
-  const { id } = req.params;
-
-  try {
-    const student = await studentService.findById(id);
-
-    if (!student) {
-      res.status(404).json(errorResponse("Student not found"));
-      return;
-    }
-
-    res.status(200).json(successResponse(student));
-  } catch (err) {
-    console.error(err);
-    res.status(500).json(errorResponse("Failed to retrieve student"));
-  }
-});
+router.get("/:id", studentValidation.id, handleValidationErrors, studentController.getById);
 
 /**
  * GET /code/:studentCode
  * Retrieve a student by student code.
  */
-router.get("/code/:studentCode", async (req: Request, res: Response): Promise<void> => {
-  const { studentCode } = req.params;
-
-  try {
-    const student = await studentService.findByStudentCode(studentCode);
-
-    if (!student) {
-      res.status(404).json(errorResponse("Student not found"));
-      return;
-    }
-
-    res.status(200).json(successResponse(student));
-  } catch (err) {
-    console.error(err);
-    res.status(500).json(errorResponse("Failed to retrieve student"));
-  }
-});
+router.get("/code/:studentCode", studentController.getByStudentCode);
 
 /**
  * POST /create
  * Create a new student.
  */
-router.post("/create", studentValidation.create, handleValidationErrors, async (req: Request, res: Response): Promise<void> => {
-  const { studentCode, firstName, lastName, email, phone } = req.body;
+router.post("/create", studentValidation.create, handleValidationErrors, studentController.create);
 
-  try {
-    const student = await studentService.create({ 
-      studentCode, 
-      firstName, 
-      lastName, 
-      email, 
-      phone 
-    });
-
-    res.status(201).json(successResponse(student));
-  } catch (err) {
-    console.error(err);
-    res.status(500).json(errorResponse("Failed to create student"));
-  }
-});
+/**
+ * POST /bulk
+ * Create multiple students.
+ */
+router.post("/bulk", studentController.bulkCreate);
 
 /**
  * PUT /:id
  * Update an existing student by ID.
  */
-router.put("/:id", studentValidation.update, handleValidationErrors, async (req: Request, res: Response): Promise<void> => {
-  const { id } = req.params;
-  const { studentCode, firstName, lastName, email, phone } = req.body;
-
-  try {
-    const student = await studentService.update(Number(id), { 
-      studentCode, 
-      firstName, 
-      lastName, 
-      email, 
-      phone 
-    });
-
-    res.status(200).json(successResponse(student));
-  } catch (err) {
-    console.error(err);
-    res.status(500).json(errorResponse("Failed to update student"));
-  }
-});
+router.put("/:id", studentValidation.update, handleValidationErrors, studentController.update);
 
 /**
  * DELETE /:id
  * Delete a student by ID.
  */
-router.delete("/:id", async (req: Request, res: Response): Promise<void> => {
-  const { id } = req.params;
-
-  try {
-    const student = await studentService.delete(Number(id));
-
-    res.status(200).json(successResponse(student));
-  } catch (err) {
-    console.error(err);
-    res.status(500).json(errorResponse("Failed to delete student"));
-  }
-});
+router.delete("/:id", studentValidation.id, handleValidationErrors, studentController.delete);
 
 export default router;

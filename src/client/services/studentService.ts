@@ -1,5 +1,5 @@
 import to from 'await-to-js';
-import { apiService } from './api';
+import { apiService, ApiError } from './api';
 
 export interface Student {
   id: number;
@@ -41,6 +41,9 @@ export const studentService = {
     const [error, response] = await to(apiService.get<ApiResponse<Student[]>>('/student/list'));
     if (error) {
       console.error('Error fetching students:', error.message);
+      if (error instanceof ApiError) {
+        throw error;
+      }
       throw new Error(`Failed to fetch students: ${error.message}`);
     }
     return response.data;
@@ -51,6 +54,9 @@ export const studentService = {
     const [error, response] = await to(apiService.get<ApiResponse<Student>>(`/student/${id}`));
     if (error) {
       console.error(`Error fetching student ${id}:`, error.message);
+      if (error instanceof ApiError) {
+        throw error;
+      }
       throw new Error(`Failed to fetch student: ${error.message}`);
     }
     return response.data;
@@ -61,6 +67,9 @@ export const studentService = {
     const [error, response] = await to(apiService.get<ApiResponse<Student>>(`/student/code/${studentCode}`));
     if (error) {
       console.error(`Error fetching student with code ${studentCode}:`, error.message);
+      if (error instanceof ApiError) {
+        throw error;
+      }
       throw new Error(`Failed to fetch student: ${error.message}`);
     }
     return response.data;
@@ -71,6 +80,10 @@ export const studentService = {
     const [error, response] = await to(apiService.post<ApiResponse<Student>>('/student/create', data));
     if (error) {
       console.error('Error creating student:', error.message);
+      // If it's an ApiError, preserve the original message from backend
+      if (error instanceof ApiError) {
+        throw error;
+      }
       throw new Error(`Failed to create student: ${error.message}`);
     }
     return response.data;
@@ -81,6 +94,10 @@ export const studentService = {
     const [error, response] = await to(apiService.put<ApiResponse<Student>>(`/student/${id}`, data));
     if (error) {
       console.error(`Error updating student ${id}:`, error.message);
+      // If it's an ApiError, preserve the original message from backend
+      if (error instanceof ApiError) {
+        throw error;
+      }
       throw new Error(`Failed to update student: ${error.message}`);
     }
     return response.data;
@@ -91,6 +108,9 @@ export const studentService = {
     const [error, response] = await to(apiService.delete<ApiResponse<Student>>(`/student/${id}`));
     if (error) {
       console.error(`Error deleting student ${id}:`, error.message);
+      if (error instanceof ApiError) {
+        throw error;
+      }
       throw new Error(`Failed to delete student: ${error.message}`);
     }
     return response.data;

@@ -4,6 +4,19 @@ import to from 'await-to-js';
 const API_BASE_URL = 'http://localhost:3000/api/v1';
 const DEFAULT_TIMEOUT = 10000;
 
+// Custom API Error class
+export class ApiError extends Error {
+  public statusCode: number;
+  public response?: any;
+
+  constructor(message: string, statusCode: number, response?: any) {
+    super(message);
+    this.name = 'ApiError';
+    this.statusCode = statusCode;
+    this.response = response;
+  }
+}
+
 // Helper function to create fetch options
 const createFetchOptions = (method: string, data?: any): RequestInit => {
   const options: RequestInit = {
@@ -29,13 +42,23 @@ const fetchWithErrorHandling = async <T>(url: string, options: RequestInit): Pro
   
   if (error) {
     console.error(`❌ Fetch Error: ${error.message}`);
-    throw new Error(`Network error: ${error.message}`);
+    throw new ApiError(`Network error: ${error.message}`, 0);
   }
 
   if (!response.ok) {
     console.error(`❌ HTTP Error: ${response.status} ${response.statusText}`);
-    const errorText = await response.text();
-    throw new Error(`HTTP ${response.status}: ${errorText || response.statusText}`);
+    
+    // Try to parse error response as JSON
+    const [jsonError, errorData] = await to(response.json());
+    
+    if (!jsonError && errorData) {
+      // If we can parse the error response, use the message from backend
+      const errorMessage = errorData.message || response.statusText;
+      throw new ApiError(errorMessage, response.status, errorData);
+    } else {
+      // Fallback to status text if JSON parsing fails
+      throw new ApiError(response.statusText, response.status);
+    }
   }
 
   console.log(`✅ ${response.status} ${url}`);
@@ -44,7 +67,7 @@ const fetchWithErrorHandling = async <T>(url: string, options: RequestInit): Pro
   
   if (jsonError) {
     console.error(`❌ JSON Parse Error: ${jsonError.message}`);
-    throw new Error(`Failed to parse response: ${jsonError.message}`);
+    throw new ApiError(`Failed to parse response: ${jsonError.message}`, response.status);
   }
 
   return data;
