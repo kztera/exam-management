@@ -7,11 +7,11 @@ import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
 
 import "./app.css";
-import NotFound from "@/client/pages/NotFound";
-import Home from "@/client/pages/Home";
-import Dashboard from "@/client/pages/Dashboard";
-import StudentsPage from "@/client/pages/Students";
-import LayoutComponent from "@/client/components/Layout";
+import NotFound from "@/pages/NotFound";
+import Home from "@/pages/Home";
+import Dashboard from "@/pages/Dashboard";
+import StudentsPage from "@/pages/Students";
+import LayoutComponent from "@/components/Layout";
 
 const root = document.getElementById("root");
 if (root !== null) {

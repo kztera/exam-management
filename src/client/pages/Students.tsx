@@ -23,7 +23,8 @@ import {
   Student, 
   CreateStudentData, 
   UpdateStudentData 
-} from '../services/studentService';
+} from '@/services/studentService';
+import { ApiError } from '@/services/api';
 
 const StudentsPage: React.FC = () => {
   const [students, setStudents] = useState<Student[]>([]);
@@ -56,9 +57,17 @@ const StudentsPage: React.FC = () => {
       const data = await studentService.getAll();
       setStudents(data);
     } catch (error) {
+      let errorMessage = 'Failed to fetch students';
+      
+      if (error instanceof ApiError) {
+        errorMessage = error.message;
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
       notifications.show({
         title: 'Error',
-        message: 'Failed to fetch students',
+        message: errorMessage,
         color: 'red',
       });
     } finally {
@@ -93,9 +102,17 @@ const StudentsPage: React.FC = () => {
       closeModal();
       form.reset();
     } catch (error) {
+      let errorMessage = `Failed to ${isEditing ? 'update' : 'create'} student`;
+      
+      if (error instanceof ApiError) {
+        errorMessage = error.message;
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
       notifications.show({
         title: 'Error',
-        message: `Failed to ${isEditing ? 'update' : 'create'} student`,
+        message: errorMessage,
         color: 'red',
       });
     }
@@ -113,9 +130,17 @@ const StudentsPage: React.FC = () => {
         });
         await fetchStudents();
       } catch (error) {
+        let errorMessage = 'Failed to delete student';
+        
+        if (error instanceof ApiError) {
+          errorMessage = error.message;
+        } else if (error instanceof Error) {
+          errorMessage = error.message;
+        }
+        
         notifications.show({
           title: 'Error',
-          message: 'Failed to delete student',
+          message: errorMessage,
           color: 'red',
         });
       }

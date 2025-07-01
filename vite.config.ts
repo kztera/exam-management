@@ -106,9 +106,17 @@ export default defineConfig(({ command, mode }) => {
     
     resolve: {
       alias: {
-        "@": path.resolve(__dirname, "./src"),
-        "@/client": path.resolve(__dirname, "./src/client"),
+        "@": path.resolve(__dirname, "./src/client"),
+        "@/components": path.resolve(__dirname, "./src/client/components"),
+        "@/pages": path.resolve(__dirname, "./src/client/pages"),
+        "@/services": path.resolve(__dirname, "./src/client/services"),
+        "@/hooks": path.resolve(__dirname, "./src/client/hooks"),
+        "@/utils": path.resolve(__dirname, "./src/client/utils"),
+        "@/types": path.resolve(__dirname, "./src/client/types"),
         "@/server": path.resolve(__dirname, "./src/server"),
+        "@/controllers": path.resolve(__dirname, "./src/server/controllers"),
+        "@/middleware": path.resolve(__dirname, "./src/server/middleware"),
+        "@/routes": path.resolve(__dirname, "./src/server/routes"),
       },
     },
     

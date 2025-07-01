@@ -25,9 +25,17 @@
     /* Path mapping */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@/client/*": ["./src/client/*"],
-      "@/server/*": ["./src/server/*"]
+      "@/*": ["./src/client/*"],
+      "@/components/*": ["./src/client/components/*"],
+      "@/pages/*": ["./src/client/pages/*"],
+      "@/services/*": ["./src/client/services/*"],
+      "@/hooks/*": ["./src/client/hooks/*"],
+      "@/utils/*": ["./src/client/utils/*"],
+      "@/types/*": ["./src/client/types/*"],
+      "@/server/*": ["./src/server/*"],
+      "@/controllers/*": ["./src/server/controllers/*"],
+      "@/middleware/*": ["./src/server/middleware/*"],
+      "@/routes/*": ["./src/server/routes/*"]
     },
 
     /* Type declarations */

@@ -2,7 +2,7 @@ import React from "react";
 import { Container, Card, Text, Button, Stack, Title } from "@mantine/core";
 import { IconMoodSad } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
-import AppHeroIcon from "../components/AppHeroIcon";
+import AppHeroIcon from "@/components/AppHeroIcon";
 
 const NotFound: React.FC = () => {
   const navigate = useNavigate();
