@@ -1,5 +1,7 @@
 {
   "watch": ["src/server/"],
   "ext": "ts,js",
-  "exec": "tsx src/server/index.ts"
+  "ignore": ["node_modules", "dist", ".vite"],
+  "exec": "tsx src/server/index.ts",
+  "delay": "1000"
 }

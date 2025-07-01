@@ -6,15 +6,18 @@
   "type": "module",
   "scripts": {
     "build": "npx vite build",
+    "build:preview": "npm run build && npx vite preview",
     "start": "npm run build && node src/server/index.ts",
     "server": "nodemon src/server/index.ts",
-    "client": "npx vite",
+    "client": "npx vite --host --force",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "migrate": "npx prisma migrate dev"
+    "dev:turbo": "concurrently --kill-others \"npm run server\" \"npx vite --host --force --clearScreen false\"",
+    "migrate": "npx prisma migrate dev",
+    "clean": "rm -rf node_modules/.vite dist .vite && bun i",
+    "monitor": "node scripts/dev-monitor.js"
   },
-  "author": "Avi Maiti",
-  "license": "ISC",
   "dependencies": {
+    "@babel/plugin-transform-react-jsx": "^7.27.1",
     "@mantine/core": "^7.15.1",
     "@mantine/dates": "^7.15.1",
     "@mantine/dropzone": "^7.15.1",
@@ -23,6 +26,7 @@
     "@mantine/notifications": "^7.15.1",
     "@prisma/client": "^6.2.1",
     "@tabler/icons-react": "^3.32.0",
+    "@vitejs/plugin-legacy": "^7.0.0",
     "await-to-js": "^3.0.0",
     "concurrently": "^9.1.2",
     "cors": "^2.8.5",
@@ -38,21 +42,29 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.1.1",
+    "rollup-plugin-visualizer": "^6.0.3",
     "strong-error-handler": "^5.0.15",
-    "yup": "^1.6.1"
+    "vite-bundle-analyzer": "^1.0.0",
+    "vite-plugin-eslint": "^1.8.1",
+    "vite-plugin-pwa": "^1.0.1",
+    "workbox-webpack-plugin": "^7.3.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.3",
     "@types/lodash": "^4.17.13",
     "@types/multer": "^1.4.12",
-    "@types/node": "^22.10.5",
+    "@types/node": "^24.0.8",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
     "@vitejs/plugin-react": "^4.3.4",
+    "imagemin-mozjpeg": "^10.0.0",
+    "imagemin-pngquant": "^10.0.0",
+    "imagemin-webp": "^8.0.0",
     "nodemon": "^3.1.9",
     "tsx": "^4.20.3",
     "typescript": "^5.7.2",
-    "vite": "^6.0.7"
+    "vite": "^6.0.7",
+    "vite-plugin-imagemin": "^0.6.1"
   }
 }
